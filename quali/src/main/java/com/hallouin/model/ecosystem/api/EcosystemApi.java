@@ -14,8 +14,6 @@ public class EcosystemApi {
 	private final String user;
 	private final String pwd;
 	private final String urlEcosystem;
-	// url sandbox
-	//private static final String URL = "https://sandbox-api-reparateurs.ecosystem.eco";
 
 	private EcosystemApiClient ecosystemApiClient;
 	private String idToken;
