@@ -353,7 +353,7 @@ public class ClaimModel {
 		} else {
 			isEcosystem = false;
 			EcologicApi ecologicApi = new EcologicApi(appDatas);
-			SendEcologicInvoices sendInvoices = new SendEcologicInvoices(ecologicApi, this, appDatas);
+			SendEcologicInvoices sendInvoices = new SendEcologicInvoices(pcs, ecologicApi, this, appDatas);
 			billsNotSentList = sendInvoices.Send(billsToSendList);
 		}
 

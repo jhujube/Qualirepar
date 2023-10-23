@@ -1,5 +1,6 @@
 package com.hallouin.model.ecologic.api;
 
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,19 +30,25 @@ public class SendEcologicInvoices {
 	private EcologicApi ecologicApi;
 	private ClaimModel claimModel;
 	private AppDatas appDatas;
+	private PropertyChangeSupport pcs;
 
-	public SendEcologicInvoices(EcologicApi ecologicApi, ClaimModel claimModel,AppDatas appDatas) {
+	public SendEcologicInvoices(PropertyChangeSupport pcs,EcologicApi ecologicApi, ClaimModel claimModel,AppDatas appDatas) {
 		this.ecologicApi = ecologicApi;
 		this.claimModel = claimModel;
 		this.appDatas = appDatas;
+		this.pcs = pcs;
 	}
 
 	public List<Bill> Send (List<Bill> billsToSendList){
 		List<Bill> billWithErrors = new ArrayList<>();
-
+		int claimNumber = 0;
 		for(Bill bill : billsToSendList) {
+			claimNumber++;
 			List<ValidationError> errorsList;
 			//  Creation de la demande de soutien
+			pcs.firePropertyChange("sendStateTitle", null, "Demande N°"+claimNumber+":"); // Notifie les observateurs qu'il y a eu une mise à jour
+			pcs.firePropertyChange("sendStateLabel", null, "Création de la demande de soutien"); // Notifie les observateurs qu'il y a eu une mise à jour
+
 			String jsonResponse = ecologicApi.createRequest(bill);
 			bill = updateRequestInfos(bill, jsonResponse);
 			errorsList = errorsReturn(jsonResponse);
@@ -53,6 +60,7 @@ public class SendEcologicInvoices {
 			if (bill.getEcologicDatas().getIsRequestCreated() && bill.getEcologicDatas().getErrorsList()==null) {
 
 				// Création de la demande de rbsmt
+				pcs.firePropertyChange("sendStateLabel", null, "Création de la demande de remboursement"); // Notifie les observateurs qu'il y a eu une mise à jour
 				jsonResponse = ecologicApi.createClaim(bill);
 				bill = updateClaimInfos(bill, jsonResponse);
 				errorsList = errorsReturn(jsonResponse);
@@ -62,15 +70,18 @@ public class SendEcologicInvoices {
 				System.out.println("Json create claim :"+jsonResponse);
 
 				// Envoi ses fichiers
+				pcs.firePropertyChange("sendStateLabel", null, "Envoi des fichiers"); // Notifie les observateurs qu'il y a eu une mise à jour
 				jsonResponse = sendFiles(bill.getFilesInformationsList(),bill.getEcologicDatas().getClaimId());
 				System.out.println("Json send files:"+jsonResponse);
 
 				// Soumission de la demande de rbsmt
+				pcs.firePropertyChange("sendStateLabel", null, "Finalisation de la demande"); // Notifie les observateurs qu'il y a eu une mise à jour
 				jsonResponse = ecologicApi.submitClaim(bill.getEcologicDatas().getClaimId());
 				bill = updateSubmitClaimInfos(bill, jsonResponse);
 				System.out.println("Json submit claim:"+jsonResponse);
 				//errorsList = submitClaimErrors(jsonResponse);
 				//claimModel.showErrorsReturnEcolo(errorsList);
+				pcs.firePropertyChange("sendStateLabel", null, "Envoi effectué"); // Notifie les observateurs qu'il y a eu une mise à jour
 
 
 			} else {

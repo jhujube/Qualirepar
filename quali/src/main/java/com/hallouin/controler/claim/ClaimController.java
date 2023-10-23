@@ -164,8 +164,11 @@ public class ClaimController {
     }
 
 	public void sendInvoices() {
+		
+		// mise de la demande d'envoi dans un thread différent pour ne pas bloquer la maj de l'ui
 		CompletableFuture<Boolean> isEcosystem = new CompletableFuture<>();
 		
+		// recupération du résultat
 		isEcosystem.whenComplete((value,error) -> {
 			if (value)
 				pcs.firePropertyChange("newClaimEcosystem", false, true); // Notifie les observateurs qu'il y a eu une mise à jour Ecosystem
@@ -173,7 +176,7 @@ public class ClaimController {
 				pcs.firePropertyChange("newClaimEcologic", false, true); // Notifie les observateurs qu'il y a eu une mise à jour Ecologic
 
 		});
-		
+		// demarrage de thread
 		CompletableFuture.runAsync(() -> {
 			isEcosystem.complete(claimModel.sendInvoices());
 		});
