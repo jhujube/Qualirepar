@@ -41,7 +41,7 @@ public class EcosystemModel {
 	public void setController(EcosystemController ecosystemController) {
 		this.ecosystemController = ecosystemController;
 	}
-
+	
 	public GetAllClaims getAllClaims() {
 		String jsonResponse = "";
 		jsonResponse = ecosystemApi.getDatas("/reimbursement-claims");

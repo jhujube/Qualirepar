@@ -5,6 +5,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import javax.swing.JOptionPane;
 
@@ -71,6 +72,7 @@ public class ClaimController {
 	}
 
 	public void importInvoice() {
+		
 		File file = dialogsView.showFileChooser(appDatas.getBillPath(), "pdf");
 		Bill bill = new DatasFromPdf().Extract(file,dialogsView,selectedProduct);
 		claimModel.fillClaimWithInfosFromBill(bill);
@@ -162,15 +164,23 @@ public class ClaimController {
     }
 
 	public void sendInvoices() {
-		Boolean isEcosystem = claimModel.sendInvoices();
-		if (isEcosystem)
-			pcs.firePropertyChange("newClaimEcosystem", false, true); // Notifie les observateurs qu'il y a eu une mise à jour Ecosystem
-		else
-			pcs.firePropertyChange("newClaimEcologic", false, true); // Notifie les observateurs qu'il y a eu une mise à jour Ecologic
+		CompletableFuture<Boolean> isEcosystem = new CompletableFuture<>();
+		
+		isEcosystem.whenComplete((value,error) -> {
+			if (value)
+				pcs.firePropertyChange("newClaimEcosystem", false, true); // Notifie les observateurs qu'il y a eu une mise à jour Ecosystem
+			else
+				pcs.firePropertyChange("newClaimEcologic", false, true); // Notifie les observateurs qu'il y a eu une mise à jour Ecologic
+
+		});
+		
+		CompletableFuture.runAsync(() -> {
+			isEcosystem.complete(claimModel.sendInvoices());
+		});
+
 	}
 
 	public void showSimpleMessage(String message, String title) {
 		JOptionPane.showMessageDialog(null, message, title, JOptionPane.PLAIN_MESSAGE);
 	}
-
 }

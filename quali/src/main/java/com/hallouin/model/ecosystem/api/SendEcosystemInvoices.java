@@ -43,7 +43,7 @@ public class SendEcosystemInvoices {
 			claimNumber++;
 			pcs.firePropertyChange("sendStateTitle", null, "Demande N°"+claimNumber+":"); // Notifie les observateurs qu'il y a eu une mise à jour
 			pcs.firePropertyChange("sendStateLabel", null, "Création de la demande"); // Notifie les observateurs qu'il y a eu une mise à jour
-
+			
 			NewClaim newClaim = createEcosystemClaim(bill);
 			String jsonResponse = ecosystemApi.postNewClaim(newClaim);
 			claimModel.isErrorReturnEcosys(jsonResponse);

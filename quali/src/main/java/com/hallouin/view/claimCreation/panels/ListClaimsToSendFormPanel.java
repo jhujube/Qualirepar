@@ -143,10 +143,11 @@ public class ListClaimsToSendFormPanel {
         scrollPane.setMinimumSize(panel.getPreferredSize());
 	}
 	public void setSendStateTitle(String title) {
+		System.out.println("sendstateTitle :"+title);
 		sendStateTitle.setText(title);
 	}
 	public void setSendStateLabel(String title) {
-		System.out.println("sendstatelabel :"+title+"/"+this);
+		System.out.println("sendstatelabel :"+title);
 		sendStateLabel.setText(title);
 	}
 }

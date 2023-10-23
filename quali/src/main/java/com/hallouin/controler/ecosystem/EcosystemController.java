@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import com.hallouin.controler.claim.ClaimController;
 import com.hallouin.model.ecosystem.EcosystemModel;
@@ -32,24 +33,37 @@ public class EcosystemController implements PropertyChangeListener {
 	}
 
 	private void start() {
-		List<ClaimSentInfos> claimsList = new ArrayList<>();
+		
 
 		String[] columnsName = {"id", "Ref. Ecosystem", "Ma ref.", "Crée le", "Réparateur", "Statut", "Date de réparation","Actions"};
 		ecosystemView.setTableColumns(columnsName);
+		
+		// Creation d'un completableFurture ds un autre Thread pour ne pas bloquer le programme
+		CompletableFuture<GetAllClaims> createdClaims = new CompletableFuture<>();
+		
+		createdClaims.whenComplete((value,error) -> {
+			List<ClaimSentInfos> claimsList = new ArrayList<>();
+			claimsList = value.getClaimsSentList();
+			
+			tableDatas = computeClaimsDataToTable(claimsList, columnsName.length);
+			ecosystemView.setClaimsTableDatas(tableDatas);
+			
+			System.out.println("Ecosystem 1ere lecture effectuée, mise à jour des demandes...");
+			updateCreatedClaims(claimsList);
+			
+			GetAllClaims createdClaims2 = ecosystemModel.getAllClaims();
+			claimsList = createdClaims2.getClaimsSentList();
 
-		GetAllClaims createdClaims = ecosystemModel.getAllClaims();
-		claimsList = createdClaims.getClaimsSentList();
-
-		System.out.println("Ecosystem 1ere lecture effectuée, mise à jour des demandes...");
-		updateCreatedClaims(claimsList);
-
-		createdClaims = ecosystemModel.getAllClaims();
-		claimsList = createdClaims.getClaimsSentList();
-
-		System.out.println("Ecosystem 2nde lecture effectuée, affichage résultats...");
-		tableDatas = computeClaimsDataToTable(claimsList, columnsName.length);
-		ecosystemView.setClaimsTableDatas(tableDatas);
-
+			System.out.println("Ecosystem 2nde lecture effectuée, affichage résultats...");
+			tableDatas = computeClaimsDataToTable(claimsList, columnsName.length);
+			ecosystemView.setClaimsTableDatas(tableDatas);
+			
+		});
+		
+		CompletableFuture.runAsync(() -> {
+			createdClaims.complete(ecosystemModel.getAllClaims());
+		});
+		
 	}
 
 	public void setClaimController(ClaimController claimController) {

@@ -260,6 +260,7 @@ public class ClaimModel {
 
 			Partner partner = findEcoSystemPartner(partnerId);
 			bill.getEcosystemDatas().setPartner(partner);
+			
 		}
 		if (ecoorganism.contentEquals("Ecologic")) {
 			bill.setIsEcosystem(false);
@@ -358,6 +359,7 @@ public class ClaimModel {
 
 		if (billsNotSentList.isEmpty()) {
 			claimController.showSimpleMessage("L'envoi s'est effectué correctement", "Informations");
+
 		} else {
 			int nbClaimsNotSent = billsNotSentList.size();
 			if (nbClaimsNotSent == 1)
@@ -404,5 +406,4 @@ public class ClaimModel {
 		}
 
 	}
-
 }

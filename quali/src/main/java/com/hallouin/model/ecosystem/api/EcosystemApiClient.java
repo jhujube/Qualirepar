@@ -12,13 +12,13 @@ import okhttp3.Response;
 
 public class EcosystemApiClient {
 
-	private OkHttpClient client;
+	private final OkHttpClient client;
 
 	public EcosystemApiClient() {
 		super();
 		client = new OkHttpClient();
 	}
-
+	
 	public String sendGetRequest (String url, String token) throws IOException {
 		String responseBody = "";
 
@@ -37,7 +37,7 @@ public class EcosystemApiClient {
 
 		return responseBody;
 	}
-
+	
 	public String sendConnectPostRequest (String url, String jsonBody) throws IOException {
 		String responseBody = "";
 
@@ -57,8 +57,6 @@ public class EcosystemApiClient {
 	        Call call = client.newCall(request);
 	        Response response = call.execute(); // Synchronously execute the request
 
-	        //int statusCode = response.code();
-	        //Headers headers = response.headers();
 	        responseBody = response.body().string();
 
 		return responseBody;

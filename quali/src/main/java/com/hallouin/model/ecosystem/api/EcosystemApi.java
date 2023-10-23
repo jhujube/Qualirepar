@@ -66,7 +66,7 @@ public class EcosystemApi {
 
 		return jsonResponse;
 	}
-
+	
 	public String postNewClaim(NewClaim newClaim) {
 		if (idToken == null)
 			connectEcosystemApi(user,pwd);
