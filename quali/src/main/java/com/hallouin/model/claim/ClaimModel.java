@@ -2,6 +2,7 @@ package com.hallouin.model.claim;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -348,7 +349,7 @@ public class ClaimModel {
 		List<Bill> billsNotSentList = new ArrayList<>();
 		if (ecoorganism.contentEquals("Ecosystem")) {
 			isEcosystem = true;
-			SendEcosystemInvoices sendInvoices = new SendEcosystemInvoices(pcs, ecosystemApi, this);
+			SendEcosystemInvoices sendInvoices = new SendEcosystemInvoices(pcs, ecosystemApi, this, claimController );
 			billsNotSentList = sendInvoices.Send(billsToSendList);
 		} else {
 			isEcosystem = false;
@@ -367,7 +368,11 @@ public class ClaimModel {
 			else
 				claimController.showSimpleMessage("Plusieurs envois ne se sont pas effectués correctement. Consultez la liste", "Informations");
 		}
-
+		// suppression de la liste des demandes non envoyées 
+		billsNotSentList.removeAll(billsNotSentList);
+		// suppression des fichiers sur le disque des demandes envoyées
+		deleteFiles(billsToSendList);
+		
 		billsToSendList = new ArrayList<>();
 
 		String[][] claimsList = claimsToSendListForPanel(billsNotSentList);
@@ -404,6 +409,27 @@ public class ClaimModel {
 		for (ValidationError validationError : validationErrors) {
 			claimController.showSimpleMessage(validationError.getErrorMessage(), validationError.getField());
 		}
-
+	}
+	private void deleteFiles (List<Bill> billsToDeleteList) {
+		String options[] = {"Oui","Non"}; 
+		int selection = claimController.optionDialog(options, "Supprimer les fichiers envoyés ?", "Suppression");
+		if (selection == 0) {
+			for (Bill bill : billsToDeleteList) {
+				List<FileInformations> filesInfo = bill.getFilesInformationsList();
+				for (FileInformations fileInformations : filesInfo) {
+					File fileToDelete = new File(fileInformations.getPath());
+					if (fileToDelete.exists()) {
+			            // Supprimez le fichier en utilisant la méthode delete()
+			            if (fileToDelete.delete()) {
+			                System.out.println("Le fichier a été supprimé avec succès.");
+			            } else {
+			                System.out.println("Impossible de supprimer le fichier.");
+			            }
+			        } else {
+			            System.out.println("Le fichier n'existe pas.");
+			        }
+				}
+			}
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package com.hallouin.model.ecosystem.api;
 
 import java.beans.PropertyChangeSupport;
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -9,7 +10,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.text.View;
+
 import com.google.gson.Gson;
+import com.hallouin.controler.claim.ClaimController;
 import com.hallouin.model.bill.Bill;
 import com.hallouin.model.bill.FileInformations;
 import com.hallouin.model.bill.SparePart;
@@ -24,19 +28,23 @@ import com.hallouin.model.ecosystem.api.response_pojo.CreatedClaim;
 import com.hallouin.model.ecosystem.api.response_pojo.RqError;
 import com.hallouin.model.ecosystem.api.response_pojo.UploadFileUrl;
 
+import okio.Options;
+
 
 public class SendEcosystemInvoices {
 	private EcosystemApi ecosystemApi;
 	private ClaimModel claimModel;
+	private ClaimController claimController;
 	private PropertyChangeSupport pcs;
 
-	public SendEcosystemInvoices(PropertyChangeSupport pcs, EcosystemApi ecosystemApi, ClaimModel claimModel) {
+	public SendEcosystemInvoices(PropertyChangeSupport pcs, EcosystemApi ecosystemApi, ClaimModel claimModel, ClaimController claimController) {
 		this.ecosystemApi = ecosystemApi;
 		this.claimModel = claimModel;
+		this.claimController = claimController;
 		this.pcs = pcs;
 	}
 
-	public List<Bill> Send (List<Bill> billsToSendList){
+	public List<Bill> Send (List<Bill> billsToSendList){	
 		List<Bill> billWithErrors = new ArrayList<>();
 		int claimNumber = 0;
 		for(Bill bill : billsToSendList) {
@@ -81,6 +89,7 @@ public class SendEcosystemInvoices {
 			} else {
 				pcs.firePropertyChange("sendStateLabel", null, "Envoi effectué"); // Notifie les observateurs qu'il y a eu une mise à jour
 			}
+
 		}
 
 		//System.out.println("Toutes les demandes ont été envoyées");

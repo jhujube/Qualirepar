@@ -184,6 +184,9 @@ public class ClaimController {
 	}
 
 	public void showSimpleMessage(String message, String title) {
-		JOptionPane.showMessageDialog(null, message, title, JOptionPane.PLAIN_MESSAGE);
+		dialogsView.simpleMessage(message, title);
+	}
+	public int optionDialog(Object[] options, String message, String title) {
+		return dialogsView.optionDialogue(options, message, title);
 	}
 }
