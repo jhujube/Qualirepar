@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import javax.swing.JOptionPane;
-
 import com.hallouin.model.bill.Bill;
 import com.hallouin.model.bill.BillInfos;
 import com.hallouin.model.bill.Client;

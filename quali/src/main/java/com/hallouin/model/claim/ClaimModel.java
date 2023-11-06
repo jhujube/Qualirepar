@@ -3,7 +3,9 @@ package com.hallouin.model.claim;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -24,6 +26,7 @@ import com.hallouin.model.ecosystem.api.SendEcosystemInvoices;
 import com.hallouin.model.ecosystem.api.pojo.BrandEcosystem;
 import com.hallouin.model.ecosystem.api.pojo.Product;
 import com.hallouin.model.ecosystem.api.request_pojo.partners.Partner;
+import com.hallouin.model.ecosystem.api.response_pojo.Amounts;
 import com.hallouin.model.ecosystem.api.response_pojo.RepairCodeEcosystem;
 import com.hallouin.model.ecosystem.api.response_pojo.RqError;
 import com.hallouin.model.ecosystem.pojo.Id_Name;
@@ -70,7 +73,38 @@ public class ClaimModel {
 
 	public void setProductsList() {
 		productsList = appDatas.getEcosystemProducts();
+		// on retire de la liste des produits ceux qui ne sont pas actuellement éligibles, et on ne garde que la valeur du remboursement en cours aujourd'hui
+		productsList = productsListFilter(productsList);
 		pcs.firePropertyChange("productsList", null, productsList); // Notifie les observateurs qu'il y a eu une mise à jour
+	}
+	private List<Product> productsListFilter(List<Product> productsList){
+		List<Product> filteredList = new ArrayList<>();
+		LocalDate today = LocalDate.now();
+		
+		for (Product product : productsList) {
+			LocalDate dateFrom = LocalDate.parse(product.getProductEligibleFrom());
+			LocalDate dateUntil = LocalDate.parse(product.getProductEligibleUntil());
+			
+			// Vérification si le produit est actuellement éligible à un remboursement
+			if (today.isAfter(dateFrom) && today.isBefore(dateUntil)) {
+				
+				// Si le produit est  actuellement éligible, on ne garde que la valeur de remboursement en cours aujourd'hui
+				List<Amounts> amountsList = product.getAmountsList();
+				Iterator<Amounts> iterator = amountsList.iterator();
+				while (iterator.hasNext()) {
+				    Amounts amount = iterator.next();
+				    LocalDate fromDate = LocalDate.parse(amount.getAmountValidFrom());
+				    LocalDate untilDate = LocalDate.parse(amount.getAmountValidUntil());
+				    // si en dehors des dates alors on retire
+				    if (!(today.isAfter(fromDate) && today.isBefore(untilDate))) {
+				        iterator.remove(); // Utilisez l'itérateur pour supprimer l'élément de la liste
+				    }
+				}
+				filteredList.add(product);
+			}
+		}
+		
+		return filteredList;
 	}
 
 	public void selectedProduct(Product product) {
@@ -181,6 +215,7 @@ public class ClaimModel {
 		}
 		return brandId;
 	}
+
 	private String findEcologicProductId (String productName) {
 
 		String productId = "";
