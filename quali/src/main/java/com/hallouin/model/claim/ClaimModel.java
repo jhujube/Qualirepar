@@ -443,8 +443,10 @@ public class ClaimModel {
 			else
 				claimController.showSimpleMessage("Plusieurs envois ne se sont pas effectués correctement. Consultez la liste", "Informations");
 		}
+		
 		// suppression de la liste des demandes non envoyées 
-		billsNotSentList.removeAll(billsNotSentList);
+		billsToSendList.removeAll(billsNotSentList);
+		
 		// suppression des fichiers sur le disque des demandes envoyées
 		deleteFiles(billsToSendList);
 		
