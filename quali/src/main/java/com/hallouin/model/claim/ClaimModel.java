@@ -35,6 +35,7 @@ import com.hallouin.model.ecosystem.api.response_pojo.RqError;
 import com.hallouin.model.ecosystem.pojo.Id_Name;
 
 public class ClaimModel {
+	private final static Integer FILE_MAX_SIZE_IN_MO = 3;
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	private AppDatas appDatas;
 	private ClaimController claimController;
@@ -294,24 +295,30 @@ public class ClaimModel {
 	}
 
 	public void addFileToSend(FileInformations fileInformations) {
-		if (filesInformationsList == null) {
-            filesInformationsList = new ArrayList<>();
-        }
+		if (fileInformations.getSize()< FILE_MAX_SIZE_IN_MO) {
 
-        boolean found = false;
-        for (int i = 0; i < filesInformationsList.size(); i++) {
-            if (filesInformationsList.get(i).getType().equals(fileInformations.getType())) {
-                filesInformationsList.set(i, fileInformations);
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) {
-            filesInformationsList.add(fileInformations);
-        }
-
-        pcs.firePropertyChange("fileToUpload", null, fileInformations); // Notifie les observateurs qu'il y a eu une mise à jour
+			if (filesInformationsList == null) {
+	            filesInformationsList = new ArrayList<>();
+	        }
+	
+	        boolean found = false;
+	        for (int i = 0; i < filesInformationsList.size(); i++) {
+	            if (filesInformationsList.get(i).getType().equals(fileInformations.getType())) {
+	                filesInformationsList.set(i, fileInformations);
+	                found = true;
+	                break;
+	            }
+	        }
+	
+	        if (!found) {
+	            filesInformationsList.add(fileInformations);
+	        }
+	
+	        pcs.firePropertyChange("fileToUpload", null, fileInformations); // Notifie les observateurs qu'il y a eu une mise à jour
+	
+		} else {
+			claimController.showSimpleMessage("Le fichier doit être inférieur à 3 Mo.","Erreur");
+		}
 	}
 
 	public void addBillToSend (Bill bill) {
