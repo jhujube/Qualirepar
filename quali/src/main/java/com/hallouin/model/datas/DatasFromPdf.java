@@ -122,10 +122,26 @@ public class DatasFromPdf {
 	    String zipCode= "";
 	    String town= "";
 	    String phone= "";
+	    String mail = "";
 
 		try {
-			String [] coordonnees = text.split("sarlhallouin@free.fr\\r\\n")[1].split("Facture SAV")[0].split("\n");
-			//String [] coordonnees = text.split("sarlhallouin@free.fr\\r\\n")[1].split("Fiche Suivi SAV SAV")[0].split("\n");
+			String [] coordonnees;
+			int offset = 1;
+			if (text.contains("Facture SAV")) {
+				coordonnees = text.split("sarlhallouin@free.fr\\r\\n")[1].split("Facture SAV")[0].split("\n");
+			} else {
+				coordonnees = text.split("sarlhallouin@free.fr\\r\\n")[1].split("Facture")[0].split("\n");
+			}
+			
+			if (text.contains("Email")) {
+				String [] email = text.split("Email : ")[1].split("\\s");
+				if (!email[0].isEmpty()) {
+					mail = email[0];
+				}else {
+	            	dialogsView.simpleMessage("Le mail client n'est pas renseigné","Attention !");
+	            }
+				offset = 2;
+			}
             String [] genderNameFirstName = coordonnees[0].split("\\s+");
 
             gender = calculateGender(genderNameFirstName[0]);
@@ -140,18 +156,18 @@ public class DatasFromPdf {
             street = coordonnees[1].replaceAll(streetNumber, "").replace("\r", "").trim();
             isMissingField(street, "Rue non renseignée");
 
-            String [] cpVille = coordonnees[coordonnees.length-1].split("\\s+");
+            String [] cpVille = coordonnees[coordonnees.length-offset].split("\\s+");
             zipCode = cpVille[0];
             isMissingField(zipCode, "Code postal non renseigné");
-            town = coordonnees[coordonnees.length-1].replaceAll(zipCode, "").replace("\r", "").trim();
-            isMissingField(town, "Ville non renseignée");
+            town = coordonnees[coordonnees.length-offset].replaceAll(zipCode, "").replace("\r", "").trim();
+            isMissingField(town, "Ville non renseignée");          
 
             String [] phoneLine = text.split("Date")[1].split("\\nTechnicien")[0].split(":");
             phone = phoneLine[phoneLine.length-1].replace("\r", "").replace(" ", "");
             if (phone.length()!=10)
             	dialogsView.simpleMessage("Le numéro de téléphone n'est pas conforme","Attention !");
             isMissingField(phone, "N° de téléphone non renseigné");
-
+ 
 		} catch(ArrayIndexOutOfBoundsException e ){
         	e.printStackTrace();
         	dialogsView.simpleMessage("Erreur de lecture des infos concernant le client sur la facture", "Erreur");
@@ -165,6 +181,8 @@ public class DatasFromPdf {
 		client.setZipCode(zipCode);
 		client.setTown(town);
 		client.setPhone(phone);
+		if (!mail.isEmpty())
+			client.setMail(mail);
 
         return client;
 	}

@@ -28,7 +28,7 @@ public class ListClaimsToSendFormPanel {
 	private JTable table;
 	private DefaultTableModel model;
 	private JPanel panel;
-	final int nbLignesMax = 3;
+	private final int nbLignesMax = 3;
 	private JButton sendButton;
 	private JLabel sendStateTitle;
 	private JLabel sendStateLabel;
@@ -114,7 +114,7 @@ public class ListClaimsToSendFormPanel {
 		if (nbLignes >= nbLignesMax-1)
 			nbLignes = nbLignesMax-1;
 	    int totalHeight = 23 + nbLignes * table.getRowHeight(); // Calcul de la hauteur totale
-
+	    System.out.println("hauteur"+totalHeight);
 	    return totalHeight;
 	}
 
