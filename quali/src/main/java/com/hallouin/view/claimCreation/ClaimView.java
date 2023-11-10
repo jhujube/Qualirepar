@@ -64,6 +64,7 @@ public class ClaimView implements PropertyChangeListener{
 	}
 
 	public JPanel setClaimTabbedPane() {
+		
 		JPanel panel = new JPanel();
 	    panel.setLayout(new FlowLayout());
 	    panel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0), 2, true), "Nouvelle demande ", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
@@ -112,9 +113,9 @@ public class ClaimView implements PropertyChangeListener{
         panel_newClaim.add(panel2_h);
         panel_newClaim.add(panel_buttons);
         panel_newClaim.add(panel_listClaims);
-
+        
         panel.add(panel_newClaim);
-
+        
 	    return panel;
 	}
 

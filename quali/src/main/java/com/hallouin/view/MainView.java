@@ -6,6 +6,7 @@ import java.awt.Frame;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -42,10 +43,13 @@ public class MainView extends JFrame{
 	    frame.setExtendedState(Frame.MAXIMIZED_BOTH);
 	    Dimension minimizedSize = new Dimension(1000,600);
 	    frame.setMinimumSize(minimizedSize);
+	    
+	    JPanel contentPanel = new JPanel();
+	    JScrollPane scrollPane = new JScrollPane(contentPanel);
+	    scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
 
 	    JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
-		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
-
 
 		createClaim = tabbedPane_createClaim.setClaimTabbedPane();
 		tabbedPane.addTab("Demande",null,createClaim,null);
@@ -55,6 +59,10 @@ public class MainView extends JFrame{
 
 		ecologic = tabbedPane_ecologic.setEclTabbedPane();
 		tabbedPane.addTab("Ecologic", null, ecologic, null);
+		
+		scrollPane.add(tabbedPane);
+		
+		frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
 
         frame.add(tabbedPane);
         frame.setVisible(true);

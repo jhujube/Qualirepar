@@ -3,6 +3,7 @@ package com.hallouin.view.claimCreation.panels;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -28,8 +29,7 @@ public class ListClaimsToSendFormPanel {
 	private JTable table;
 	private DefaultTableModel model;
 	private JPanel panel;
-	private JScrollPane scrollPane;
-	final int nbLignesMax = 6;
+	final int nbLignesMax = 3;
 	private JButton sendButton;
 	private JLabel sendStateTitle;
 	private JLabel sendStateLabel;
@@ -39,7 +39,7 @@ public class ListClaimsToSendFormPanel {
 		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
         //panel.setLayout(new FlowLayout());
         panel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0), 2, true), "Demandes à envoyer", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-        panel.setPreferredSize(new Dimension(800,230));
+        panel.setPreferredSize(new Dimension(800,150));
         panel.setMaximumSize(panel.getPreferredSize());
         panel.setMinimumSize(panel.getPreferredSize());
 
@@ -48,9 +48,7 @@ public class ListClaimsToSendFormPanel {
         model = new DefaultTableModel(data, column);
         table = new JTable(model);
 
-        scrollPane = new JScrollPane(table);
-
-        setTableDim();
+        JScrollPane scrollPane = setTableDim(table);
 
         panel.add(scrollPane);
 
@@ -121,7 +119,9 @@ public class ListClaimsToSendFormPanel {
 	    return totalHeight;
 	}
 
-	private void setTableDim() {
+	private JScrollPane setTableDim(JTable table) {
+		JScrollPane scrollPane = new JScrollPane(table);
+		
 		int tableHeight = calculateTableHeight(table);
         System.out.println("hauteur table :"+tableHeight+"/"+this);
         TableColumnModel columnModel = table.getColumnModel();
@@ -141,6 +141,8 @@ public class ListClaimsToSendFormPanel {
         scrollPane.setPreferredSize(new Dimension(630, 23 + table.getRowHeight()*nbLignesMax));
         scrollPane.setMaximumSize(panel.getPreferredSize());
         scrollPane.setMinimumSize(panel.getPreferredSize());
+        
+        return scrollPane;
 	}
 	public void setSendStateTitle(String title) {
 		System.out.println("sendstateTitle :"+title);

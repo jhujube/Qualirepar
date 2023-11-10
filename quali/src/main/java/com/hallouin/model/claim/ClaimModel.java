@@ -5,8 +5,10 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.hallouin.controler.claim.ClaimController;
@@ -25,6 +27,7 @@ import com.hallouin.model.ecosystem.api.EcosystemApi;
 import com.hallouin.model.ecosystem.api.SendEcosystemInvoices;
 import com.hallouin.model.ecosystem.api.pojo.BrandEcosystem;
 import com.hallouin.model.ecosystem.api.pojo.Product;
+import com.hallouin.model.ecosystem.api.request_pojo.partners.BusinessSheet;
 import com.hallouin.model.ecosystem.api.request_pojo.partners.Partner;
 import com.hallouin.model.ecosystem.api.response_pojo.Amounts;
 import com.hallouin.model.ecosystem.api.response_pojo.RepairCodeEcosystem;
@@ -73,38 +76,68 @@ public class ClaimModel {
 
 	public void setProductsList() {
 		productsList = appDatas.getEcosystemProducts();
-		// on retire de la liste des produits ceux qui ne sont pas actuellement éligibles, et on ne garde que la valeur du remboursement en cours aujourd'hui
+		// on retire de la liste des produits ceux qui ne sont pas actuellement éligibles et ceux qui ne sont pas gérés par le réparateur, et on ne garde que la valeur du remboursement en cours aujourd'hui
 		productsList = productsListFilter(productsList);
 		pcs.firePropertyChange("productsList", null, productsList); // Notifie les observateurs qu'il y a eu une mise à jour
 	}
 	private List<Product> productsListFilter(List<Product> productsList){
 		List<Product> filteredList = new ArrayList<>();
-		LocalDate today = LocalDate.now();
+		List<Product> partnerProductsList = new ArrayList<>();
 		
+		// filtrage de la liste de produits pour ne garder que ceux ayant droit à un rbsmt aujourd'hui ainsi que le montant de ce rbsmt
 		for (Product product : productsList) {
-			LocalDate dateFrom = LocalDate.parse(product.getProductEligibleFrom());
-			LocalDate dateUntil = LocalDate.parse(product.getProductEligibleUntil());
 			
 			// Vérification si le produit est actuellement éligible à un remboursement
-			if (today.isAfter(dateFrom) && today.isBefore(dateUntil)) {
+			if (isTodayBetweenDates(product.getProductEligibleFrom(),product.getProductEligibleUntil())) {
 				
 				// Si le produit est  actuellement éligible, on ne garde que la valeur de remboursement en cours aujourd'hui
 				List<Amounts> amountsList = product.getAmountsList();
 				Iterator<Amounts> iterator = amountsList.iterator();
 				while (iterator.hasNext()) {
 				    Amounts amount = iterator.next();
-				    LocalDate fromDate = LocalDate.parse(amount.getAmountValidFrom());
-				    LocalDate untilDate = LocalDate.parse(amount.getAmountValidUntil());
-				    // si en dehors des dates alors on retire
-				    if (!(today.isAfter(fromDate) && today.isBefore(untilDate))) {
+				    // On ne garde que la valeur de remboursement en cours aujourd'hui
+				    if(!isTodayBetweenDates(amount.getAmountValidFrom(), amount.getAmountValidUntil())) { 
 				        iterator.remove(); // Utilisez l'itérateur pour supprimer l'élément de la liste
 				    }
 				}
 				filteredList.add(product);
-			}
+			}			
 		}
 		
-		return filteredList;
+		// filtrage du restant de la liste pour ne garder que les produits auxquels le réparateur peut avoir un rbsmt aujourd'hui
+		
+		// Utilisation d'une liste Set pour éviter les doublons
+		Set<BusinessSheet> businessSheetsList = new HashSet<>();
+		
+		//Création de la liste des types d'appareils autorisés ches le(s) réparateur(s)
+		for (Partner partner : appDatas.getEcosystemPartners()) {
+			businessSheetsList.addAll(partner.getBusinessSheetsList());				
+		}
+		// Filtrage de la liste d'appareils pour ne garder que ceux autorisés chez le(s) réparateur(s)
+		for (Product product1 : filteredList) {
+			for (BusinessSheet businessSheet : businessSheetsList) {
+				if (isTodayBetweenDates(businessSheet.getValidFrom(), businessSheet.getValidTo())) {
+					if (product1.getProductSheet().getType().contentEquals(businessSheet.getType())) {
+						partnerProductsList.add(product1);	
+						System.out.println(product1.getProductName());
+						break;
+					}
+				}
+			}				
+		}
+		
+		return partnerProductsList;
+	}
+	
+	private Boolean isTodayBetweenDates(String dateFrom, String dateUntil) {
+		LocalDate today = LocalDate.now();
+		LocalDate fromDate = LocalDate.parse(dateFrom);
+	    LocalDate untilDate = LocalDate.parse(dateUntil);
+	    if ((today.isAfter(fromDate) && today.isBefore(untilDate))) {
+	    	return true;
+	    }
+		
+		return false;
 	}
 
 	public void selectedProduct(Product product) {

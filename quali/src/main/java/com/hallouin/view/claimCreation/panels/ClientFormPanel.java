@@ -3,8 +3,13 @@ package com.hallouin.view.claimCreation.panels;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.TextField;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import java.util.Arrays;
 
+import javax.swing.*;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -48,41 +53,49 @@ public class ClientFormPanel extends JPanel{
         JPanel panel_name = BasicFormJTextField("Nom", name);
         panel_name.setPreferredSize(new Dimension(120,40));
         panel_name.setMaximumSize(panel_name.getPreferredSize());
+        CreatePopupMenu(name);
 
         firstName = new JTextField();
         JPanel panel_firstName = BasicFormJTextField("Prénom",firstName);
         panel_firstName.setPreferredSize(new Dimension(120,40));
         panel_firstName.setMaximumSize(panel_firstName.getPreferredSize());
+        CreatePopupMenu(firstName);
 
         streetNumber = new JTextField();
         JPanel panel_streetNumber = BasicFormJTextField("N°",streetNumber);
         panel_streetNumber.setPreferredSize(new Dimension(50,40));
         panel_streetNumber.setMaximumSize(panel_streetNumber.getPreferredSize());
+        CreatePopupMenu(streetNumber);
 
         street = new JTextField();
         JPanel panel_streetName = BasicFormJTextField("Rue",street);
         panel_streetName.setPreferredSize(new Dimension(180,40));
         panel_streetName.setMaximumSize(panel_streetName.getPreferredSize());
+        CreatePopupMenu(street);
 
         zipCode = new JTextField();
         JPanel panel_zip = BasicFormJTextField("CP",zipCode);
         panel_zip.setPreferredSize(new Dimension(60,40));
         panel_zip.setMaximumSize(panel_zip.getPreferredSize());
+        CreatePopupMenu(zipCode);
 
         town = new JTextField();
         JPanel panel_town = BasicFormJTextField("Ville",town);
         panel_town.setPreferredSize(new Dimension(180,40));
         panel_town.setMaximumSize(panel_town.getPreferredSize());
+        CreatePopupMenu(town);
 
         phone = new JTextField();
         JPanel panel_phone = BasicFormJTextField("Téléphone",phone);
         panel_phone.setPreferredSize(new Dimension(100,40));
         panel_phone.setMaximumSize(panel_phone.getPreferredSize());
+        CreatePopupMenu(phone);
 
         mail = new JTextField();
         JPanel panel_mail = BasicFormJTextField("Email",mail);
         panel_mail.setPreferredSize(new Dimension(180,40));
         panel_mail.setMaximumSize(panel_mail.getPreferredSize());
+        CreatePopupMenu(mail);
 
         setEnable(false);
 
@@ -129,6 +142,30 @@ public class ClientFormPanel extends JPanel{
         panel.add(line5);
 
         return panel;
+    }
+    
+    private void CreatePopupMenu(JTextField textField) {
+    	 // Créez le menu contextuel
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem pasteItem = new JMenuItem("Coller");
+
+        // Ajoutez des écouteurs d'événements aux éléments de menu
+        pasteItem.addActionListener(e -> textField.paste());
+
+        popupMenu.add(pasteItem);
+
+        // Ajoutez un écouteur de souris au champ JTextField
+        textField.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Vérifiez si le clic est un clic droit
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    // Affichez le menu contextuel au clic droit
+                    popupMenu.show(textField, e.getX(), e.getY());
+                }
+            }
+        });
+
     }
 
     private JPanel BasicFormJTextField(String label, JTextField field) {

@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,8 +15,11 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -36,6 +41,7 @@ public class BillFormPanel {
     	JPanel panel_billNumber = BasicFormJTextField("N° de Facture", billNumber);
     	panel_billNumber.setPreferredSize(new Dimension(100,40));
     	panel_billNumber.setMaximumSize(panel_billNumber.getPreferredSize());
+    	CreatePopupMenu(billNumber);
 
     	repairDate = new JTextField();
     	JPanel panel_repairDate = BasicFormJTextField("Date de réparation", repairDate);
@@ -93,7 +99,29 @@ public class BillFormPanel {
 
         return panel;
     }
+    private void CreatePopupMenu(JTextField textField) {
+   	 // Créez le menu contextuel
+       JPopupMenu popupMenu = new JPopupMenu();
+       JMenuItem pasteItem = new JMenuItem("Coller");
 
+       // Ajoutez des écouteurs d'événements aux éléments de menu
+       pasteItem.addActionListener(e -> textField.paste());
+
+       popupMenu.add(pasteItem);
+
+       // Ajoutez un écouteur de souris au champ JTextField
+       textField.addMouseListener(new MouseAdapter() {
+           @Override
+           public void mouseClicked(MouseEvent e) {
+               // Vérifiez si le clic est un clic droit
+               if (SwingUtilities.isRightMouseButton(e)) {
+                   // Affichez le menu contextuel au clic droit
+                   popupMenu.show(textField, e.getX(), e.getY());
+               }
+           }
+       });
+
+   }
     private JPanel BasicFormJComboBox(String label, JComboBox<Id_Name> comboBox) {
 
     	JPanel panel = new JPanel();
