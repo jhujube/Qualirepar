@@ -45,30 +45,19 @@ public class SendEcologicInvoices {
 		for(Bill bill : billsToSendList) {
 			claimNumber++;
 			List<ValidationError> errorsList;
-			//  Creation de la demande de soutien
+			//  Creation de la demande de rbsmt
 			pcs.firePropertyChange("sendStateTitle", null, "Demande N°"+claimNumber+":"); // Notifie les observateurs qu'il y a eu une mise à jour
-			pcs.firePropertyChange("sendStateLabel", null, "Création de la demande de soutien"); // Notifie les observateurs qu'il y a eu une mise à jour
-
-			String jsonResponse = ecologicApi.createRequest(bill);
-			bill = updateRequestInfos(bill, jsonResponse);
+			
+			pcs.firePropertyChange("sendStateLabel", null, "Création de la demande de remboursement"); // Notifie les observateurs qu'il y a eu une mise à jour
+			String jsonResponse = ecologicApi.createClaim(bill);
+			bill = updateClaimInfos(bill, jsonResponse);
 			errorsList = errorsReturn(jsonResponse);
+			// filtrage des erreurs "Des pièces jointes sont requises..." qui sont présentes systématiquement
+			errorsList = filterFilesErrors(errorsList);
 			claimModel.showErrorsReturnEcolo(errorsList);
-
-			System.out.println("Json create request :"+jsonResponse);
-
-			// Si ok
-			if (bill.getEcologicDatas().getIsRequestCreated() && bill.getEcologicDatas().getErrorsList()==null) {
-
-				// Création de la demande de rbsmt
-				pcs.firePropertyChange("sendStateLabel", null, "Création de la demande de remboursement"); // Notifie les observateurs qu'il y a eu une mise à jour
-				jsonResponse = ecologicApi.createClaim(bill);
-				bill = updateClaimInfos(bill, jsonResponse);
-				errorsList = errorsReturn(jsonResponse);
-				// filtrage des erreurs "Des pièces jointes sont requises..." qui sont présentes systématiquement
-				errorsList = filterFilesErrors(errorsList);
-				claimModel.showErrorsReturnEcolo(errorsList);
-				System.out.println("Json create claim :"+jsonResponse);
-
+			System.out.println("Json create claim :"+jsonResponse);
+				
+			if (errorsList.isEmpty()) {
 				// Envoi ses fichiers
 				pcs.firePropertyChange("sendStateLabel", null, "Envoi des fichiers"); // Notifie les observateurs qu'il y a eu une mise à jour
 				jsonResponse = sendFiles(bill.getFilesInformationsList(),bill.getEcologicDatas().getClaimId());
@@ -79,8 +68,8 @@ public class SendEcologicInvoices {
 				jsonResponse = ecologicApi.submitClaim(bill.getEcologicDatas().getClaimId());
 				bill = updateSubmitClaimInfos(bill, jsonResponse);
 				System.out.println("Json submit claim:"+jsonResponse);
-				//errorsList = submitClaimErrors(jsonResponse);
-				//claimModel.showErrorsReturnEcolo(errorsList);
+				errorsList = submitClaimErrors(jsonResponse);
+				claimModel.showErrorsReturnEcolo(errorsList);
 				pcs.firePropertyChange("sendStateLabel", null, "Envoi effectué"); // Notifie les observateurs qu'il y a eu une mise à jour
 
 
@@ -94,90 +83,6 @@ public class SendEcologicInvoices {
 		return billWithErrors;
 	}
 
-	private SupportRequest createSupportRequest (Bill bill){
-		LocalDate currentDate = LocalDate.now();
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-		String callDate = currentDate.format(formatter);
-		String quoteNumber = bill.getBillInfos().getBillNumber();
-		String repairSiteID = bill.getEcologicDatas().getRepairSite().getSiteId();
-
-		String title = bill.getClient().getGender();
-		int titleEcologic = calculateTitle(title);
-		String lastName = bill.getClient().getName();
-		String firstName = bill.getClient().getFirstName();
-		String streetNumber = bill.getClient().getStreetNumber();
-		String streetLine1 = bill.getClient().getStreet();
-		String zipCode = bill.getClient().getZipCode();
-		String city = bill.getClient().getTown();
-		String phoneNumber = bill.getClient().getPhone();
-		String email = bill.getClient().getMail();
-
-		Consumer consumer = new Consumer(titleEcologic, lastName, firstName, streetNumber, streetLine1, zipCode, city, phoneNumber);
-		if (!email.isEmpty())
-			consumer.setEmail(email);
-
-		String productId = bill.getDevice().getProductId();
-		String brandId = bill.getDevice().getBrandId();
-		String commercialReference = bill.getDevice().getReference();
-		//String manualBrandName = bill.getDevice().getManualBrandName();
-		String productIdentificationNumber = bill.getDevice().getSerial();
-		String iRISSymptom = bill.getDevice().getIrisSymptomCode();
-		String iRISSection = bill.getDevice().getIrisSectionCode();
-		String failureDescriptionString ="Symptome Iris"+iRISSymptom;
-
-		Product product = new Product(productId, brandId, commercialReference, productIdentificationNumber, iRISSymptom, iRISSection,failureDescriptionString);
-
-		Cost laborCost = new Cost(bill.getLabour().getTotalExclVat());
-		Cost sparePartsCost = new Cost(bill.getInvoice().getTotalSparesExclVat());
-		Cost travelCost = new Cost(bill.getDisplacement().getTotalExclVat());
-		Cost totalAmountCostExclVat = new Cost(bill.getInvoice().getTotalExclVat());
-		Cost totalAmountCostVat = new Cost(bill.getInvoice().getTotalVat());
-		Cost supportCost = new Cost(bill.getInvoice().getSupportAmount());
-
-		Quote quote = new Quote(laborCost, sparePartsCost, travelCost, totalAmountCostExclVat, totalAmountCostVat, supportCost);
-
-		List<SparePartEcl> spareList = createSparesList(bill.getSparesList());
-
-		SupportRequest supportRequest = new SupportRequest(consumer, product, quote);
-		if (bill.getInvoice().getTotalSparesExclVat() > 0.0 )
-			supportRequest.setSpareParts(spareList);
-
-		return supportRequest;
-	}
-	private int calculateTitle (String title) {
-		int titleEcologic = 1;
-		if (title.contains("Monsieur"))
-			titleEcologic = 3;
-		if (title.contains("Madame"))
-			titleEcologic = 2;
-		if (title.contains("Société"))
-			titleEcologic = 4;
-		return titleEcologic;
-	}
-	private List<SparePartEcl> createSparesList(List<SparePart> sparesList){
-		List<SparePartEcl> sparesListRequest = new ArrayList<>();
-		for (SparePart sparePart : sparesList) {
-			SparePartEcl spare = new SparePartEcl(sparePart.getRef(), sparePart.getQty());
-			sparesListRequest.add(spare);
-		}
-		return sparesListRequest;
-	}
-	private Bill updateRequestInfos(Bill bill, String jsonResponse) {
-		Gson gson = new Gson();
-		ResponseEcologic response = gson.fromJson(jsonResponse, ResponseEcologic.class);
-
-		Boolean isRequestCreated = response.getIsValid();
-		bill.getEcologicDatas().setIsRequestCreated(isRequestCreated);
-
-		if (isRequestCreated) {
-			bill.getEcologicDatas().setRequestId(response.getResponseData().getRequestId());
-			if (!response.getResponseData().getIsValid())
-				bill.getEcologicDatas().setValidationErrorsList(response.getResponseData().getValidationsErrorsList());
-		}
-    	//System.out.println("createdClaim :"+createdClaim.getReimbursementClaimID());
-
-    	return bill;
-    }
 	private Bill updateClaimInfos(Bill bill, String jsonResponse) {
 		Gson gson = new Gson();
 		ResponseEcologic response = gson.fromJson(jsonResponse, ResponseEcologic.class);
@@ -238,20 +143,27 @@ public class SendEcologicInvoices {
 		return jsonResponse;
 	}
 	private List<ValidationError> errorsReturn(String jsonResponse){
-
+		System.out.println("gestion erreurs :"+jsonResponse);
 		List<ValidationError> errorsList = new ArrayList<>();
 
 		Gson gson = new Gson();
 		ResponseEcologic rqError = gson.fromJson(jsonResponse, ResponseEcologic.class);
-
+		
 		// Gestion des erreurs Ecologic
-		if (!rqError.getResponseData().getIsValid()) {
-
-			for (ValidationError validationError : rqError.getResponseData().getValidationsErrorsList()) {
-				errorsList.add(validationError);
+		if (rqError.getResponseData() != null) {
+			if (!rqError.getResponseData().getIsValid()) {
+				System.out.println("erreurs1");
+				for (ValidationError validationError : rqError.getResponseData().getValidationsErrorsList()) {
+					errorsList.add(validationError);
+				}
 			}
 		}
-
+		
+		System.out.println("isValid :"+rqError.getIsValid());
+		if (!rqError.getIsValid()) {
+			System.out.println("erreurs2");
+			errorsList.add(new ValidationError(rqError.getResponseMessage(),rqError.getResponseErrorMessage(),""));
+		}
 		return errorsList;
 	}
 	private List<ValidationError> submitClaimErrors(String jsonResponse){

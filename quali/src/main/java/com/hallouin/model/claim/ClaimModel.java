@@ -242,7 +242,7 @@ public class ClaimModel {
 
 		String brandId = "";
 		for(BrandEcologic brandEcologic : appDatas.getBrandsList()) {
-			if (brandEcologic.getBrandName().contentEquals(brandName)) {
+			if (brandEcologic.getBrandName().toUpperCase().contentEquals(brandName.toUpperCase())) {
 				brandId = brandEcologic.getBrandId();
 				break;
 			}
@@ -254,7 +254,7 @@ public class ClaimModel {
 
 		String productId = "";
 		for(LabeledProductType labeledProductType : appDatas.getLabeledProductTypeList()) {
-			if (labeledProductType.getProductName().contentEquals(productName)) {
+			if (labeledProductType.getProductName().toUpperCase().contentEquals(productName.toUpperCase())) {
 				productId = labeledProductType.getProductId();
 				break;
 			}

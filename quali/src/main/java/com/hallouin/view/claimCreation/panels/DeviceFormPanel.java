@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -308,9 +309,29 @@ public class DeviceFormPanel {
     public void setIrisSection(List<Id_Name> irisSectionsList) {
     	jcbIrisSection.removeAllItems();
 
-    	for (Id_Name id_Name: irisSectionsList) {
-    		jcbIrisSection.addItem(id_Name);
-    	}
+    	// Création de la liste de pannes à afficher en liste déroulante, avec mise en fin de liste des pannes de 2023
+        List<Id_Name> elementsToKeep = new ArrayList<>();
+        List<Id_Name> elementsToMove = new ArrayList<>();
+
+        // Séparer les éléments à conserver et ceux à déplacer
+        for (Id_Name id_Name : irisSectionsList) {
+            if (id_Name.getName().contains("2023")) {
+                elementsToMove.add(id_Name);
+            } else {
+                elementsToKeep.add(id_Name);
+            }
+        }
+
+        // Ajouter d'abord les éléments à conserver
+        for (Id_Name id_Name : elementsToKeep) {
+            jcbIrisSection.addItem(id_Name);
+        }
+
+        // Ensuite, ajouter les éléments à déplacer
+        for (Id_Name id_Name : elementsToMove) {
+            jcbIrisSection.addItem(id_Name);
+        }
+
     	jcbIrisSection.repaint();
     }
 

@@ -38,7 +38,7 @@ public class ListClaimsToSendFormPanel {
 		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
         //panel.setLayout(new FlowLayout());
         panel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0), 2, true), "Demandes à envoyer", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-        panel.setPreferredSize(new Dimension(800,150));
+        panel.setPreferredSize(new Dimension(800,200));
         panel.setMaximumSize(panel.getPreferredSize());
         panel.setMinimumSize(panel.getPreferredSize());
 
@@ -57,9 +57,9 @@ public class ListClaimsToSendFormPanel {
 
         panel.add(sendButton);
 
-        sendStateTitle = new JLabel();
+        sendStateTitle = new JLabel("");
         panel.add(sendStateTitle);
-        sendStateLabel = new JLabel();
+        sendStateLabel = new JLabel("");
         panel.add(sendStateLabel);
 
         return panel;

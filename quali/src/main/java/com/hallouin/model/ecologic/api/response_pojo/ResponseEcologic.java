@@ -112,8 +112,13 @@ public class ResponseEcologic {
         private String errorMessage;
 
         @SerializedName ("MessageType")
-        private String MessageType;
+        private String messageType;
 
+        public ValidationError (String field, String errorMessage, String messageType) {
+    		this.field = field;
+    		this.errorMessage = errorMessage;
+    		this.messageType = messageType;
+    	}
 
     	public String getField() {
 			return field;
@@ -124,7 +129,7 @@ public class ResponseEcologic {
 		}
 
 		public String getMessageType() {
-			return MessageType;
+			return messageType;
 		}
     }
 }

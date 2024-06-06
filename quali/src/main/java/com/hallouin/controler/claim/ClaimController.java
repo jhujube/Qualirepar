@@ -99,7 +99,8 @@ public class ClaimController {
 		if (device.getIsEcosystem()) {
 			filesList = "invoiceField ";
 		} else {
-			filesList = "invoiceField serial_tagField certificate_clientField ";
+			//filesList = "invoiceField serial_tagField certificate_clientField ";
+			filesList = "invoiceField certificate_clientField ";
 		}
 		areFilesOk = isFilesOk(filesList,filesToSendList);
 

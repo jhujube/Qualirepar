@@ -28,8 +28,6 @@ public class EcologicApi {
     private static final String URL_GETREPAIRSITEBYATS = "apiecologic.e-reparateur.eco/api/v1/ecosupport/getrepairsitesbyats";
     private static final String URL_PRINTPRODUCTTYPEWITHLABELLIST = "apiecologic.e-reparateur.eco/api/v1/ecosupport/printproducttypewithlabellist";
     private static final String URL_CALCULATEECOSUPPORT = "apiecologic.e-reparateur.eco/api/v1/ecosupport/calculateecosupport";
-    private static final String URL_CREATEREQUEST = "apiecologic.e-reparateur.eco/api/v1/ecosupport/createsupportrequest";
-    private static final String URL_UPDATEREQUEST = "apiecologic.e-reparateur.eco/api/v1/ecosupport/updatesupportrequest";
     private static final String URL_SUPPORTREQUESTSTATUS = "apiecologic.e-reparateur.eco/api/v1/ecosupport/getsupportrequestStatus";
     private static final String URL_CREATECLAIM = "apiecologic.e-reparateur.eco/api/v1/ecosupport/createclaim";
     private static final String URL_ATTACHFILE = "apiecologic.e-reparateur.eco/api/v1/ecosupport/Attachfile";
@@ -118,49 +116,6 @@ public class EcologicApi {
 
 	}
 
-	public String createRequest(Bill bill) {
-
-		String repairDate = convertDateFormat(bill.getBillInfos().getRepairDate());
-    	String url = HEADER+URL_CREATEREQUEST+"?CallDate="+repairDate+"&RepairSiteId="+bill.getEcologicDatas().getRepairSite().getSiteId() +"&QuoteNumber="+bill.getBillInfos().getBillNumber();
-    	String responseJson="";
-    	String jsonBody = "";
-
-		jsonBody = createRequestJsonBody(bill);
-		System.out.println(jsonBody);
-
-		try {
-			responseJson = ecologicApiClient.sendPostRequest(url,jsonBody);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		System.out.println (responseJson);
-
-		return responseJson;
-
-	}
-	public String  updateSupportRequest(Bill bill) {
-
-		int requestId = bill.getEcologicDatas().getRequestId();
-		String repairDate = convertDateFormat(bill.getBillInfos().getRepairDate());
-    	String url = HEADER+URL_UPDATEREQUEST+"?CallDate="+repairDate+"&RepairSiteId="+bill.getEcologicDatas().getRepairSite().getSiteId() +"&QuoteNumber="+bill.getBillInfos().getBillNumber()+"&requestId="+requestId;
-    	String jsonBody = "";
-    	String responseJson="";
-    	System.out.println(url);
-
-    	jsonBody = createRequestJsonBody(bill);
-
-        try {
-			responseJson = ecologicApiClient.sendPostRequest(url,jsonBody);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		System.out.println (responseJson);
-		return responseJson;
-	}
 	public String CheckSupportStatus(int requestId) {
 
 		String url = HEADER+URL_SUPPORTREQUESTSTATUS+"?requestId="+requestId;
@@ -185,9 +140,10 @@ public class EcologicApi {
 		DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 		String creationClaimDate = now.format(formatter);
 
-		int requestId = bill.getEcologicDatas().getRequestId();
-    	String url = HEADER+URL_CREATECLAIM+"?RequestId="+requestId+"&RepairEndDate="+creationClaimDate+"&RepairSiteId="+bill.getEcologicDatas().getRepairSite().getSiteId()+"&ConsumerInvoiceNumber="+bill.getBillInfos().getBillNumber()+"&quoteNumber="+bill.getEcologicDatas().getQuoteNumber();
-    	String responseJson="";
+		//int requestId = bill.getEcologicDatas().getRequestId();
+    	//String url = HEADER+URL_CREATECLAIM+"?RequestId="+requestId+"&RepairEndDate="+creationClaimDate+"&RepairSiteId="+bill.getEcologicDatas().getRepairSite().getSiteId()+"&ConsumerInvoiceNumber="+bill.getBillInfos().getBillNumber()+"&quoteNumber="+bill.getEcologicDatas().getQuoteNumber();
+		String url = HEADER+URL_CREATECLAIM+"?RepairEndDate="+creationClaimDate+"&RepairSiteId="+bill.getEcologicDatas().getRepairSite().getSiteId()+"&ConsumerInvoiceNumber="+bill.getBillInfos().getBillNumber()+"&quoteNumber="+bill.getEcologicDatas().getQuoteNumber();
+		String responseJson="";
     	String jsonBody = "";
 
     	System.out.println(url);
@@ -324,8 +280,8 @@ public class EcologicApi {
     	SupportRequest.Consumer consumer = new SupportRequest.Consumer(gender, bill.getClient().getName(), bill.getClient().getFirstName(), bill.getClient().getStreetNumber(), bill.getClient().getStreet(), bill.getClient().getZipCode(), bill.getClient().getTown(), bill.getClient().getPhone());
     	if (bill.getClient().getMail() != null)
     		consumer.setEmail(bill.getClient().getMail());
-    	if (bill.getClient().getPhone() != null)
-    		consumer.setPhone(bill.getClient().getPhone());
+    	//if (bill.getClient().getPhone() != null)
+    	//	consumer.setPhone(bill.getClient().getPhone());
 
     	//String failureDescriptionString ="Symptome Iris"+bill.getDevice().getIrisSymptomCode();
     	String failureDescriptionString =bill.getDevice().getSymptom();

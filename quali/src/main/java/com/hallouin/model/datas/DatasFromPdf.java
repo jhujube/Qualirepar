@@ -25,6 +25,7 @@ import com.hallouin.view.DialogsView;
 public class DatasFromPdf {
 
 	private static final String UNKNOWN_BRAND = "MARQUE INCONNUE";
+	private static final String MAIL = "mail@label-qualirepar.fr";
 
 	private Product product;
 	private boolean isEcosystem;
@@ -62,7 +63,7 @@ public class DatasFromPdf {
 
 		document.close();
 		} catch (IOException e) {
-			dialogsView.simpleMessage("Fichier non lu","Error!");
+			dialogsView.simpleMessage("Fichier non lu","Erreur!");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -138,6 +139,7 @@ public class DatasFromPdf {
 				if (!email[0].isEmpty()) {
 					mail = email[0];
 				}else {
+					mail = MAIL;
 	            	dialogsView.simpleMessage("Le mail client n'est pas renseigné","Attention !");
 	            }
 				offset = 2;
@@ -145,7 +147,7 @@ public class DatasFromPdf {
             String [] genderNameFirstName = coordonnees[0].split("\\s+");
 
             gender = calculateGender(genderNameFirstName[0]);
-            String nomPrenom = coordonnees[0].split("(Monsieur )|(Madame )")[1].split("\n")[0];
+            String nomPrenom = coordonnees[0].split("(Monsieur )|(Madame )|(Mademoiselle )")[1].split("\n")[0];
             String [] nomPrenom2 = nomPrenom.split("\\s+");
             firstName = nomPrenom2[nomPrenom2.length-1].replace("\r", "").trim();
             name = nomPrenom.replaceAll(firstName, "").replace("\r", "").trim();
@@ -205,17 +207,18 @@ public class DatasFromPdf {
 		Double totalVat= 0.0;
 		Double totalExclVat= 0.0;
 		Double advance= 0.0;
+		Double bonusReparation= 0.0;
 
 		try {
 			totalVat = Double.valueOf(text.split("MONTANT TTC ")[1].split(" €")[0].replaceAll(",","."));
             isFieldZero(totalVat, "Le Total TTC de la facture n'est pas valide");
             totalExclVat = Double.valueOf(text.split("MONTANT HT ")[1].split(" €")[0].replaceAll(",","."));
             isFieldZero(totalVat, "Le Total HT de la facture n'est pas valide");
-
+            
             String resteAPayer = text.split("RESTE A PAYER ")[1].split(" €")[0].replaceAll(",",".");
             double remToPay = Double.parseDouble(resteAPayer);
             if (remToPay != 0) {
-            	//qc.errorOnBill("La facture n'est pas acquitée", "Erreur!");
+            	dialogsView.simpleMessage("La facture n'est pas acquitée", "Erreur");
             }
 
             if (text.contains("Acompte")) {
@@ -227,7 +230,19 @@ public class DatasFromPdf {
             e.printStackTrace();
             dialogsView.simpleMessage("Le fichier sélectionné n'est pas valide.", "Erreur");
         }
+		
+		try {
+			bonusReparation = Double.valueOf(text.split("Bonus réparation ")[1].split(" €")[0].replaceAll(",","."));
+            isFieldZero(totalVat, "Le montant du bonus réparation est incorrect");
+		}
+		catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            dialogsView.simpleMessage("Le bonus réparation n'est pas renseigné.", "Erreur");
+        }
+		
+		
 		Invoice invoice = new Invoice(totalVat,totalExclVat, totalSparesExclVat);
+		invoice.setSupportAmount(bonusReparation);
 		if (advance!=0.0)
 			invoice.setAdvance(advance);
 
@@ -373,6 +388,9 @@ public class DatasFromPdf {
 			break;
 		case "Monsieur":
 			gender = "M.";
+			break;
+		case "Mademoiselle":
+			gender = "Mlle";
 			break;
 		default:
 			gender = "Autre";
