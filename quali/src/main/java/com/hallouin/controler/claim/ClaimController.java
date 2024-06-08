@@ -32,6 +32,7 @@ public class ClaimController {
 	private AppDatas appDatas;
 	private DialogsView dialogsView;
 	private Product selectedProduct;
+	private Bill selectedBill;
 
 	public ClaimController(ClaimView claimView,DialogsView dialogsView , ClaimModel claimModel,AppDatas appDatas ) {
 		super();
@@ -72,8 +73,9 @@ public class ClaimController {
 	public void importInvoice() {
 		
 		File file = dialogsView.showFileChooser(appDatas.getBillPath(), "pdf");
-		Bill bill = new DatasFromPdf().Extract(file,dialogsView,selectedProduct);
-		claimModel.fillClaimWithInfosFromBill(bill);
+		selectedBill = new DatasFromPdf().Extract(file,dialogsView,selectedProduct);
+		claimModel.fillClaimWithInfosFromBill(selectedBill);
+		claimModel.verifyAmount(selectedBill.getInvoice().getSupportAmount());		// Vérification que le montant d'aide de la facture importée correspond au montant fourni par l'écoorganisme
 		claimModel.addFileToSend(selectFile(file, "invoice"));
 	}
 
@@ -93,34 +95,36 @@ public class ClaimController {
 		List<SparePart> sparePartsList = new ArrayList<>();
 		sparePartsList.addAll(claimView.getSpareParts());
 		List<String> filesToSendList = claimView.getFilesList();
-
-		Boolean areFilesOk;
-		String filesList;
-		if (device.getIsEcosystem()) {
-			filesList = "invoiceField ";
-		} else {
-			//filesList = "invoiceField serial_tagField certificate_clientField ";
-			filesList = "invoiceField certificate_clientField ";
-		}
-		areFilesOk = isFilesOk(filesList,filesToSendList);
-
-		if (client != null && billInfos != null && partnerId != null && device != null && displacement != null && invoice != null && sparePartsList != null && areFilesOk) {
-			claimModel.addPartnerId(partnerId);
-			Bill bill = new Bill(billInfos, invoice, client, device, labour, displacement, sparePartsList);
-			claimModel.addBillToSend(bill);
-
-		} else {
-			if (!areFilesOk)
-				System.out.println("Fichiers à envoyer manquants");
-			else {
-				System.out.println("Informations incomplètes");
-				System.out.println("billInfos :"+billInfos);
-				System.out.println("partner :"+partnerId);
-				System.out.println("client :"+client);
-				System.out.println("device :"+device);
-				System.out.println("displacement :"+displacement);
-				System.out.println("invoice :"+invoice);
-				System.out.println("sparePartsList :"+sparePartsList);
+		
+		if (claimModel.verifyAmount(selectedBill.getInvoice().getSupportAmount())) {
+			Boolean areFilesOk;
+			String filesList;
+			if (device.getIsEcosystem()) {
+				filesList = "invoiceField ";
+			} else {
+				//filesList = "invoiceField serial_tagField certificate_clientField ";
+				filesList = "invoiceField certificate_clientField ";
+			}
+			areFilesOk = isFilesOk(filesList,filesToSendList);
+	
+			if (client != null && billInfos != null && partnerId != null && device != null && displacement != null && invoice != null && sparePartsList != null && areFilesOk) {
+				claimModel.addPartnerId(partnerId);
+				Bill bill = new Bill(billInfos, invoice, client, device, labour, displacement, sparePartsList);
+				claimModel.addBillToSend(bill);
+	
+			} else {
+				if (!areFilesOk)
+					System.out.println("Fichiers à envoyer manquants");
+				else {
+					System.out.println("Informations incomplètes");
+					System.out.println("billInfos :"+billInfos);
+					System.out.println("partner :"+partnerId);
+					System.out.println("client :"+client);
+					System.out.println("device :"+device);
+					System.out.println("displacement :"+displacement);
+					System.out.println("invoice :"+invoice);
+					System.out.println("sparePartsList :"+sparePartsList);
+				}
 			}
 		}
 	}

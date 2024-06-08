@@ -393,7 +393,7 @@ public class DatasFromPdf {
 			gender = "Mlle";
 			break;
 		default:
-			gender = "Autre";
+			gender = "M.";
 			break;
 		}
 		return gender;

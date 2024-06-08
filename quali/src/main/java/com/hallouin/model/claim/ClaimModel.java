@@ -3,6 +3,7 @@ package com.hallouin.model.claim;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.io.Serial;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -157,6 +158,22 @@ public class ClaimModel {
 		updateRepairerList(ecoorganism);
 		updateFilesButtonsList(ecoorganism);
 		claimController.enableFields(true);
+		System.out.println("product :"+newSelectedProduct.getProductName());
+	}
+	
+	public Boolean verifyAmount(Double supportAmount) {
+		boolean isCorrect = true;
+		if (selectedProduct != null) {
+			String productAmount = selectedProduct.getAmountsList().get(0).getAmount().replaceAll("\\.\\d+", "");
+			String billAmount = Double.toString(supportAmount).replaceAll("\\.\\d+", "");
+			if (productAmount.compareTo(billAmount) != 0) {		// =0 si chaines identiques
+				claimController.showSimpleMessage("La valeur du remboursement sur la facture ("+billAmount+"€) n'est pas celui attendu par l'ecoorganisme ("+productAmount+"€)", "Erreur !");
+				isCorrect = false;
+			}
+		} else {
+			isCorrect = false;
+		}
+		return isCorrect;
 	}
 
 	public void selectedBrandEcosystem (BrandEcosystem brandEcosystem) {
