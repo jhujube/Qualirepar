@@ -31,15 +31,19 @@ public class EclClaimsListPanel {
 		super();
 	}
 
-	public JPanel addClaimsListPanel() {
+	public JPanel addClaimsListPanel(int panelHeight, int panelWidth) {
+		
 		panel = new JPanel();
-        panel.setLayout(new FlowLayout());
-        panel.setPreferredSize(new Dimension(1400,310));
-        panel.setMaximumSize(panel.getPreferredSize());
-        panel.setMinimumSize(panel.getPreferredSize());
-        //panel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0), 2, true), "Liste des demandes", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		
+		// Créer le tableau et le JScrollPane après avoir initialisé les colonnes
+	    String[] columnsName = {""};
+        setTableColumns(columnsName);
 
-        panel = createPanel();
+        scrollPane = new JScrollPane(table);
+
+        scrollPane.setPreferredSize(new Dimension(panelHeight, panelWidth));
+
+	    panel.add(scrollPane); 
 
         return panel;
 	}
@@ -95,12 +99,7 @@ public class EclClaimsListPanel {
 
 	                // Vérifier si le clic est dans la dernière colonne et que le bouton est cliqué
 	                if (column == table.getColumnCount() - 1 && row < table.getRowCount()) {
-
-	                	if (table.getValueAt(row, 1) != null) {  // alors c'est une demande de rbsmt
-	                		ecologicController.selectClaim((String) table.getValueAt(row, 1));
-	                	}else {		// sinon c'est une demande de soutien
-	                		ecologicController.selectClaim((String) table.getValueAt(row, 0));
-	                	}
+	                	ecologicController.selectClaim((String) table.getValueAt(row, 0));
 	                }
 	            }
 	        });
@@ -167,11 +166,11 @@ public class EclClaimsListPanel {
 	    public CustomTableCellRenderer() {
 	    	conditionMap = new HashMap<>();
 	        // Définissez vos conditions et couleurs ici
-	        conditionMap.put("Approuvé, en cours rembourst", Color.GREEN);
-	        conditionMap.put("Envoyé, en cours vérification", Color.ORANGE);
-	        conditionMap.put("Remboursement effectué", Color.YELLOW);
-	        conditionMap.put("Rejeté", Color.GRAY);
-	        conditionMap.put("En cours de création", Color.CYAN);
+	        conditionMap.put("Remboursement accepté", Color.GREEN);
+	        conditionMap.put("En attente de validation administrateur", Color.ORANGE);
+	        conditionMap.put("Clôturée", Color.YELLOW);
+	        conditionMap.put("Dossier incomplet", Color.GRAY);
+	        conditionMap.put("A finaliser", Color.CYAN);
 	    }
 
 	    @Override

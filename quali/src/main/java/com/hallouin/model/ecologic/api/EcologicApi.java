@@ -322,7 +322,7 @@ public class EcologicApi {
 			case "Madame":
 				genderInt = 2;
 				break;
-			case "Melle":
+			case "Mlle":
 				genderInt = 1;
 				break;
 			case "Société":

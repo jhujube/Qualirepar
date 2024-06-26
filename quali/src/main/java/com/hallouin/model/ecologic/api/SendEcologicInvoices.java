@@ -1,12 +1,10 @@
 package com.hallouin.model.ecologic.api;
 
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -76,7 +74,7 @@ public class SendEcologicInvoices {
 			} else {
 				billWithErrors.add(bill);
 			}
-			saveBill(bill);
+			saveClaim(bill);
 
 		}
 
@@ -204,31 +202,33 @@ public class SendEcologicInvoices {
 		return errorsList;
 	}
 
-	private boolean saveBill (Bill bill) {
+	private boolean saveClaim (Bill bill) {
 		boolean state = true;
-
-        // Définissez le nom du fichier dans lequel vous souhaitez enregistrer l'objet
-        String nomFichier = bill.getBillInfos().getBillNumber()+".bill";
-
-        try {
-            // Créez un flux de sortie de fichier
-            FileOutputStream fichierSortie = new FileOutputStream(appDatas.getDatasPath()+"/ecologic/"+nomFichier);
-
-            // Créez un ObjectOutputStream pour écrire l'objet dans le fichier
-            ObjectOutputStream objOutStream = new ObjectOutputStream(fichierSortie);
-
-            // Écrivez l'objet dans le fichier
-            objOutStream.writeObject(bill);
-
-            // Fermez le flux de sortie
-            objOutStream.close();
-
-            System.out.println("L'objet a été enregistré dans le fichier " + nomFichier);
+		
+		String claimIdString = ""+bill.getEcologicDatas().getClaimId();
+		String myRefString = bill.getClient().getName()+" "+bill.getBillInfos().getBillNumber();
+		String clientString = bill.getClient().getName()+" "+bill.getClient().getFirstName();
+		String creationDateString = ""+bill.getEcologicDatas().getCreationDate();
+		String repairSiteString = bill.getEcologicDatas().getRepairSite().getName();
+		String lastStatuString = bill.getEcologicDatas().getLastStatus();
+		String repairDateString = bill.getBillInfos().getRepairDate();
+		
+		String[] claim = {claimIdString , myRefString , clientString , creationDateString , repairSiteString , lastStatuString , repairDateString};
+		
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(appDatas.getDatasPath()+"/ecologic/"+"ecologicClaims.txt",true))) {
+            int nbElements = claim.length;
+			for (String element : claim) {
+				if (nbElements>1)
+					writer.write(element + ",");
+				else 
+					writer.write(element+ "\n");
+				nbElements--;
+            }
         } catch (IOException e) {
             e.printStackTrace();
             state = false;
         }
-
+		
 		return state;
 	}
 }

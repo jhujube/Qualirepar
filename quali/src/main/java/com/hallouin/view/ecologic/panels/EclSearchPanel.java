@@ -51,12 +51,12 @@ public class EclSearchPanel {
      		searchField.getDocument().addDocumentListener(new DocumentListener() {
                  @Override
                  public void insertUpdate(DocumentEvent e) {
-                    // ecologicController.newSearch(searchField.getText());
+                    ecologicController.newSearch(searchField.getText());
                  }
 
                  @Override
                  public void removeUpdate(DocumentEvent e) {
-                    // ecologicController.newSearch(searchField.getText());
+                    ecologicController.newSearch(searchField.getText());
                  }
 
                  @Override

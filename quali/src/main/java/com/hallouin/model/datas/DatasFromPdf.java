@@ -147,7 +147,7 @@ public class DatasFromPdf {
             String [] genderNameFirstName = coordonnees[0].split("\\s+");
 
             gender = calculateGender(genderNameFirstName[0]);
-            String nomPrenom = coordonnees[0].split("(Monsieur )|(Madame )|(Mademoiselle )")[1].split("\n")[0];
+            String nomPrenom = coordonnees[0].split("(Monsieur )|(Madame )|(Melle )")[1].split("\n")[0];
             String [] nomPrenom2 = nomPrenom.split("\\s+");
             firstName = nomPrenom2[nomPrenom2.length-1].replace("\r", "").trim();
             name = nomPrenom.replaceAll(firstName, "").replace("\r", "").trim();
@@ -389,7 +389,7 @@ public class DatasFromPdf {
 		case "Monsieur":
 			gender = "M.";
 			break;
-		case "Mademoiselle":
+		case "Melle":
 			gender = "Mlle";
 			break;
 		default:

@@ -43,6 +43,7 @@ public class ClientFormPanel extends JPanel{
     	DefaultComboBoxModel<String> comboBoxModel = new DefaultComboBoxModel<>();
     	comboBoxModel.addElement("M.");
     	comboBoxModel.addElement("Mme");
+    	comboBoxModel.addElement("Mlle");
     	comboBoxModel.addElement("Autre");
     	gender = new JComboBox<>(comboBoxModel);
         JPanel panel_civilite = BasicFormJComboBox("Civilité",gender);

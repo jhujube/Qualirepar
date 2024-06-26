@@ -96,7 +96,7 @@ public class ClaimController {
 		sparePartsList.addAll(claimView.getSpareParts());
 		List<String> filesToSendList = claimView.getFilesList();
 		
-		if (claimModel.verifyAmount(selectedBill.getInvoice().getSupportAmount())) {
+		if (claimModel.verifyAmount(selectedBill.getInvoice().getSupportAmount())) {		// Vérification que le montant d'aide de la facture importée correspond au montant fourni par l'écoorganisme
 			Boolean areFilesOk;
 			String filesList;
 			if (device.getIsEcosystem()) {

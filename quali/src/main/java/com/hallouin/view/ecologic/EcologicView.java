@@ -3,6 +3,7 @@ package com.hallouin.view.ecologic;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -16,9 +17,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import com.hallouin.controler.ecologic.EcologicController;
 import com.hallouin.model.bill.Bill;
 import com.hallouin.model.ecologic.EcologicModel;
-import com.hallouin.view.ecologic.panels.EclButtonsFormPanel;
 import com.hallouin.view.ecologic.panels.EclClaimsListPanel;
 import com.hallouin.view.ecologic.panels.EclConsultClaimPanel;
+import com.hallouin.view.ecologic.panels.EclErrorsPanel;
 import com.hallouin.view.ecologic.panels.EclSearchPanel;
 
 public class EcologicView {
@@ -26,7 +27,7 @@ public class EcologicView {
 	private EclSearchPanel searchPanel;
 	private EclClaimsListPanel claimsListPanel;
 	private EclConsultClaimPanel consultClaimPanel;
-	private EclButtonsFormPanel buttonsFormPanel;
+	private EclErrorsPanel errorsPanel;
 
 	public EcologicView(EcologicModel ecologicModel){
 		super();
@@ -39,7 +40,13 @@ public class EcologicView {
 		JPanel panel = new JPanel();
 	    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 	    panel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0), 2, true), "Demandes", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-	    panel.setPreferredSize(new Dimension(900,230));
+	    
+	 // Obtenir la résolution de l'écran
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int panelWidth = (int) (screenSize.width * 0.8);
+        int panelHeight = (int) (screenSize.height * 0.8);
+        
+        panel.setPreferredSize(new Dimension(panelWidth,panelHeight));
 	    panel.setMaximumSize(panel.getPreferredSize());
 	    panel.setMinimumSize(panel.getPreferredSize());
 
@@ -57,27 +64,18 @@ public class EcologicView {
 	    listClaimsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
 
 	    claimsListPanel = new EclClaimsListPanel();
-	    listClaimsPanel.add(claimsListPanel.addClaimsListPanel());
+	    listClaimsPanel.add(claimsListPanel.addClaimsListPanel(panelWidth, (int) (panelHeight / 1.5)));
 
 	    panel.add(listClaimsPanel);
 
 	    JPanel consultClaim = new JPanel();
 	    consultClaim.setLayout(new BoxLayout(consultClaim, BoxLayout.X_AXIS));
 	    consultClaim.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
-
-	    consultClaimPanel = new EclConsultClaimPanel(ecologicModel);
-	    consultClaim.add(consultClaimPanel.setMainView());
-
+	    errorsPanel = new EclErrorsPanel(panelWidth, panelHeight / 4);
+	    consultClaim.add(errorsPanel.getPanel());
+	    errorsPanel.setVisible(false);
+	    
 	    panel.add(consultClaim);
-
-	    JPanel buttonsPanel = new JPanel();
-	    buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
-	    buttonsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
-
-	    buttonsFormPanel = new EclButtonsFormPanel();
-	    buttonsPanel.add(buttonsFormPanel.addButtonsFormPanel());
-
-	    panel.add(buttonsPanel);
 
 	    return panel;
 	}
@@ -114,10 +112,11 @@ public class EcologicView {
 
 	public void setController(EcologicController ecologicController) {
 		claimsListPanel.setController(ecologicController);
-		buttonsFormPanel.setController(ecologicController);
 		searchPanel.setController(ecologicController);
 	}
-	public void updateConsultClaim(Bill bill) {
-		consultClaimPanel.fillClaimPanel(bill);
+	
+	public void updateConsultClaim(String[][] datas) {
+		errorsPanel.updateTableData(datas);
+		errorsPanel.setVisible(true);
 	}
 }
