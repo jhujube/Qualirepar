@@ -19,10 +19,10 @@ public class MainApp {
 	private static EcosystemApi ecosystemApi;
 
 	public static void main(String[] args) {
-
-		AppDatas appDatas = GetAppDatas.getDatas();
-
 		dialogsView = new DialogsView();
+
+		AppDatas appDatas = GetAppDatas.getDatas(dialogsView);
+
 		ecosystemApi = new EcosystemApi(appDatas.getEcosystemUser(), appDatas.getEcosystemPwd(), appDatas.getEcosystemUrl());
 
 		ClaimModel claimModel = new ClaimModel(appDatas,ecosystemApi);

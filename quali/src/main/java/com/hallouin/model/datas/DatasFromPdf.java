@@ -241,7 +241,7 @@ public class DatasFromPdf {
         }
 		
 		
-		Invoice invoice = new Invoice(totalVat,totalExclVat, totalSparesExclVat);
+		Invoice invoice = new Invoice(totalVat-advance,totalExclVat, totalSparesExclVat);
 		invoice.setSupportAmount(bonusReparation);
 		if (advance!=0.0)
 			invoice.setAdvance(advance);

@@ -28,7 +28,7 @@ public class ListClaimsToSendFormPanel {
 	private JTable table;
 	private DefaultTableModel model;
 	private JPanel panel;
-	private final int nbLignesMax = 3;
+	private final int nbLignesMax = 2;
 	private JButton sendButton;
 	private JLabel sendStateTitle;
 	private JLabel sendStateLabel;

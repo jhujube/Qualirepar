@@ -38,14 +38,10 @@ public class GetAppDatas {
 	private static final Integer DAY_MAX_AGE = 7;
 	private static final String CATALOG_QUERY = "/catalog?brands=true&repair-codes=true&reimbursement-amounts=true&product-sheets=true&threshold=true&ecologic=true";
 	private static final String PARTNERS_QUERY = "/partners?subcontractor=false&repair-places=true&business-sheets=true";
-	private static DialogsView dialogsView;
 	private static AppDatas appDatas;
 
-	public GetAppDatas(DialogsView dialogsView) {
-		GetAppDatas.dialogsView = dialogsView;
-	}
-
-	public static AppDatas getDatas() {
+	public static AppDatas getDatas(DialogsView dialogsView) {
+		
 		Properties properties = new Properties();
 
         try (FileInputStream fichierProprietes = new FileInputStream("/Users/halju/Documents/Fact/qualirepar.properties")) {
